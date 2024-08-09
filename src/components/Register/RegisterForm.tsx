@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import styles from './styles/registerForm.module.css';
+import { Link } from 'react-router-dom';
+import styles from './styles/RegisterForm.module.css';
 
 const RegisterForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,7 +16,17 @@ const RegisterForm: React.FC = () => {
   return (
     <div className={styles.registerFormContainer}>
       <form onSubmit={handleSubmit} className={styles.registerForm}>
-        <h2 className={styles.title}>register</h2>
+        <h2 className={styles.title}>Register</h2>
+        <div className={styles.formGroup}>
+          <label htmlFor="username">Username:</label>
+          <input
+            type="username"
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
         <div className={styles.formGroup}>
           <label htmlFor="email">Email:</label>
           <input
@@ -36,6 +48,9 @@ const RegisterForm: React.FC = () => {
           />
         </div>
         <button type="submit" className={styles.registerButton}>Register</button>
+        <div className={styles.loginLink}>
+          <Link to="/">Already have an account? Login</Link>
+        </div>
       </form>
     </div>
   );

@@ -23,7 +23,7 @@
   
   .formGroup {
     margin-bottom: 1rem;
-    width: 100%; 
+    width: 100%;
   }
   
   .formGroup label {
@@ -32,6 +32,7 @@
   }
   
   .formGroup input {
+    width: 95%;
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -51,5 +52,18 @@
   
   .registerButton:hover {
     background-color: #0056b3;
+  }
+  
+  .loginLink {
+    margin-top: 1rem;
+  }
+  
+  .loginLink a {
+    color: #11793cb6;
+    text-decoration: none;
+  }
+  
+  .loginLink a:hover {
+    text-decoration: underline;
   }
   
