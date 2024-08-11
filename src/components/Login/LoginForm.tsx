@@ -10,7 +10,6 @@ const LoginForm: React.FC = () => {
     e.preventDefault();
     console.log('Email:', email);
     console.log('Password:', password);
-    // Add your login logic here, such as calling an API endpoint
   };
 
   return (
