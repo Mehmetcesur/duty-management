@@ -17,6 +17,8 @@ const Management: React.FC = () => {
 
     const [filter, setFilter] = useState<'All' | 'New' | 'In Progress' | 'Completed'>('All');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+    const [newTaskTitle, setNewTaskTitle] = useState('');
+    const [newTaskDescription, setNewTaskDescription] = useState('');
 
     const handleEdit = (id: number) => {
         console.log(`Edit task with id: ${id}`);
@@ -24,6 +26,19 @@ const Management: React.FC = () => {
 
     const handleDelete = (id: number) => {
         setTasks(tasks.filter(task => task.id !== id));
+    };
+
+    const handleAddTask = () => {
+        const newTask: Task = {
+            id: tasks.length + 1,
+            title: newTaskTitle,
+            description: newTaskDescription,
+            creationDate: new Date().toISOString().split('T')[0],
+            status: 'New',
+        };
+        setTasks([...tasks, newTask]);
+        setNewTaskTitle('');
+        setNewTaskDescription('');
     };
 
     const filteredTasks = tasks
@@ -41,6 +56,31 @@ const Management: React.FC = () => {
             <h1 className="mb-4 text-center">Task Management</h1>
             <Row className="justify-content-center mb-3">
                 <Col xs="auto">
+                    <Form.Group controlId="newTaskTitle">
+                        <Form.Label>New Task Title</Form.Label>
+                        <Form.Control 
+                            type="text" 
+                            value={newTaskTitle} 
+                            onChange={(e) => setNewTaskTitle(e.target.value)}
+                        />
+                    </Form.Group>
+                </Col>
+                <Col xs="auto">
+                    <Form.Group controlId="newTaskDescription">
+                        <Form.Label>New Task Description</Form.Label>
+                        <Form.Control 
+                            type="text" 
+                            value={newTaskDescription} 
+                            onChange={(e) => setNewTaskDescription(e.target.value)}
+                        />
+                    </Form.Group>
+                </Col>
+                <Col xs="auto" className="d-flex align-items-end">
+                    <Button onClick={handleAddTask}>Add</Button>
+                </Col>
+            </Row>
+            <Row className="justify-content-center mb-3">
+                <Col xs="auto">
                     <Form.Group controlId="filterStatus">
                         <Form.Label>Filter by status</Form.Label>
                         <Form.Control 
@@ -49,7 +89,7 @@ const Management: React.FC = () => {
                             onChange={(e) => setFilter(e.target.value as 'All' | 'New' | 'In Progress' | 'Completed')}
                         >
                             <option value="All">All</option>
-                            <option value="Pending">New</option>
+                            <option value="New">New</option>
                             <option value="In Progress">In Progress</option>
                             <option value="Completed">Completed</option>
                         </Form.Control>
