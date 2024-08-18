@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './styles/LoginForm.module.css';
+import { toast } from 'react-toastify';
+import authService from '../../services/authService';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Email:', email);
-    console.log('Password:', password);
+    const success = await authService.login({ email, password });
+    if (success) {
+      navigate('/management');
+    } else {
+      toast.error('Login failed. Please check your email and password.');
+    }
   };
 
   return (
@@ -26,7 +33,6 @@ const LoginForm: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <small id="emailHelp" className="form-text text-muted"></small>
         </div>
         <div className={styles.formGroup}>
           <label htmlFor="exampleInputPassword1">Password:</label>

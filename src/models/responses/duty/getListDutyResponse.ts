@@ -5,6 +5,7 @@ export default interface GetListDutyResponse{
     userName : string;
     title :string ;
     description: string;
+    createdDate:string
     status:string;
 
 }

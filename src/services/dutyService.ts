@@ -7,7 +7,8 @@ import UpdatedDutyResponse from "../models/responses/duty/updatedDutyResponse";
 import DeleteDutyRequest from "../models/requests/duty/deleteDutyRequest";
 import DeletedDutyResponse from "../models/responses/duty/deletedDutyResponse";
 import UpdateDutyRequest from "../models/requests/duty/updateDutyRequest";
-
+import { AxiosResponse } from "axios";
+import axiosInstance from "../core/interceptors/axiosInterceptor";
 
 class DutyService extends BaseService<
     Paginate<GetListDutyResponse>,
@@ -23,7 +24,10 @@ class DutyService extends BaseService<
         super();
         this.apiUrl = "Duties";
     }
-}
 
+    getTasksByUserId(userId: number): Promise<AxiosResponse<Paginate<GetListDutyResponse>>> {
+        return axiosInstance.get<Paginate<GetListDutyResponse>>(`${this.apiUrl}/GetByUserId?userId=${userId}`);
+    }
+}
 
 export default new DutyService();
