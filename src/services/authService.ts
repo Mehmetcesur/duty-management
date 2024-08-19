@@ -17,6 +17,8 @@ interface TokenDetails {
 
 
 class AuthService {
+    // Diğer metodlar...
+
     async login(request: LoginRequest): Promise<boolean> {
         try {
             const response = await axiosInstance.post<LoginResponse>("Auth/login", request);
@@ -31,8 +33,6 @@ class AuthService {
             return false;  // Hata durumunda da başarısız olarak dön
         }
     }
-    
-    
 
     register(request: RegisterRequest): Promise<AxiosResponse<RegisterResponse, any>> {
         return axiosInstance.post<RegisterResponse>("Auth/register", request);
@@ -40,11 +40,11 @@ class AuthService {
 
     getUserInfo(): any {
         const token = tokenService.getToken();
-    
+
         if (!token) {
             return null;
         }
-    
+
         try {
             const tokenDetails: TokenDetails = jwtDecode(token);
             const {
@@ -52,27 +52,31 @@ class AuthService {
                 Email: email,
                 Name: name,
             } = tokenDetails;
-    
+
             if (!userId || !email) {
                 console.error('User ID or email is missing in the token');
                 return null;
             }
-    
+
             let userName = name ? name.split(' ')[0] : 'Unknown';
-    
+
             const user: any = {
                 id: userId,
-                usernName: userName,
+                userName: userName,  // Burada 'usernName' yerine 'userName' olarak düzelttim
                 email: email,
             };
-    
+
             return user;
         } catch (error) {
             console.error('Error decoding token:', error);
             return null;
         }
     }
-    
+
+    logout(): void {
+        tokenService.removeToken();  // Token'ı temizle
+    }
 }
 
 export default new AuthService();
+

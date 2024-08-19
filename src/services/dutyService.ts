@@ -10,6 +10,7 @@ import UpdateDutyRequest from "../models/requests/duty/updateDutyRequest";
 import { AxiosResponse } from "axios";
 import axiosInstance from "../core/interceptors/axiosInterceptor";
 
+
 class DutyService extends BaseService<
     Paginate<GetListDutyResponse>,
     GetListDutyResponse,
@@ -28,7 +29,11 @@ class DutyService extends BaseService<
     getTasksByUserId(userId: number, pageSize: number = 5, pageIndex: number = 0): Promise<AxiosResponse<Paginate<GetListDutyResponse>>> {
         return axiosInstance.get<Paginate<GetListDutyResponse>>(`${this.apiUrl}/GetByUserId?userId=${userId}&PageSize=${pageSize}&PageIndex=${pageIndex}`);
     }
-    
+
+    addTask(task: AddDutyRequest): Promise<AxiosResponse<AddedDutyResponse>> {
+        return axiosInstance.post<AddedDutyResponse>(`${this.apiUrl}/Add`, task);  // /Add endpoint'i eklendi
+    }
 }
 
 export default new DutyService();
+

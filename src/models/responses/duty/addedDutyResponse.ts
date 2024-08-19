@@ -1,10 +1,8 @@
-
-
-export default interface AddedDutyResponse{
-    id:number
-    userName : string;
-    title :string ;
+export default interface AddedDutyResponse {
+    id: number;
+    userName: string;
+    title: string;
     description: string;
-    status:string;
-
+    status: 'New' | 'InProgress' | 'Completed';
+    createdDate: string;
 }
