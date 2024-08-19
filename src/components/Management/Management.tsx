@@ -8,7 +8,7 @@ interface Task {
     id: number;
     title: string;
     description: string;
-    createdDate: string; // İsterseniz Date olarak dönüştürebilirsiniz
+    createdDate: string; 
     status: 'New' | 'InProgress' | 'Completed';
 }
 

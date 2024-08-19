@@ -25,9 +25,10 @@ class DutyService extends BaseService<
         this.apiUrl = "Duties";
     }
 
-    getTasksByUserId(userId: number): Promise<AxiosResponse<Paginate<GetListDutyResponse>>> {
-        return axiosInstance.get<Paginate<GetListDutyResponse>>(`${this.apiUrl}/GetByUserId?userId=${userId}`);
+    getTasksByUserId(userId: number, pageSize: number = 5, pageIndex: number = 0): Promise<AxiosResponse<Paginate<GetListDutyResponse>>> {
+        return axiosInstance.get<Paginate<GetListDutyResponse>>(`${this.apiUrl}/GetByUserId?userId=${userId}&PageSize=${pageSize}&PageIndex=${pageIndex}`);
     }
+    
 }
 
 export default new DutyService();
