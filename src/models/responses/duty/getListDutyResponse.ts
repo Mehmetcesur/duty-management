@@ -1,11 +1,8 @@
-
-
-export default interface GetListDutyResponse{
-    id:number;
-    userName : string;
-    title :string ;
+export default interface getListDutyResponse {
+    id: number;
+    userId: number;  // Bu alanın tanımlı olduğundan emin olun
+    title: string;
     description: string;
-    createdDate:string
-    status:string;
-
+    createdDate: string;
+    status: string;
 }

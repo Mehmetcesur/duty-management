@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Form, Table, Container, Row, Col, Navbar, Nav } from 'react-bootstrap';
+import { Button, Form, Table, Container, Row, Col, Navbar, Nav, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
 import dutyService from '../../services/dutyService';
 import getListDutyResponse from '../../models/responses/duty/getListDutyResponse';
 import AddDutyRequest from '../../models/requests/duty/addDutyRequest';
+import UpdateDutyRequest from '../../models/requests/duty/updateDutyRequest';
 
 interface Task {
     id: number;
+    userId?: number;  // İsteğe bağlı hale getirildi
     title: string;
     description: string;
     createdDate: string;
@@ -36,26 +38,26 @@ const Management: React.FC = () => {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [newTaskDescription, setNewTaskDescription] = useState('');
+    const [editingTask, setEditingTask] = useState<Task | null>(null);
 
     const navigate = useNavigate();
 
-    // Görevleri API'den almak için bir fonksiyon tanımlıyoruz
     const fetchAllTasks = async () => {
         const user = authService.getUserInfo();
-    
+
         if (!user || !user.id) {
             console.error('User ID is undefined or user information is missing:', user);
             return;
         }
-    
+
         let allTasks: Task[] = [];
         let pageIndex = 0;
         let hasNext = true;
-    
+
         try {
             while (hasNext) {
-                const response = await dutyService.getTasksByUserId(user.id, 5, pageIndex); // Sayfa başına 5 veri alıyoruz
-    
+                const response = await dutyService.getTasksByUserId(user.id, 5, pageIndex);
+
                 if (response.data && Array.isArray(response.data.items)) {
                     const tasks: Task[] = response.data.items.map((item: getListDutyResponse) => {
                         let status: 'New' | 'InProgress' | 'Completed' = 'New';
@@ -64,6 +66,7 @@ const Management: React.FC = () => {
                         }
                         return {
                             id: item.id,
+                            userId: item.userId, // userId alanı ekleniyor
                             title: item.title,
                             description: item.description,
                             createdDate: item.createdDate || new Date().toISOString(),
@@ -78,24 +81,19 @@ const Management: React.FC = () => {
                     hasNext = false;
                 }
             }
-    
+
             setTasks(allTasks);
         } catch (error) {
             console.error('Error fetching tasks:', error);
         }
     };
-    
+
     useEffect(() => {
         fetchAllTasks();
     }, []);
 
-    // useEffect ile sayfa yüklendiğinde verileri alıyoruz
-    useEffect(() => {
-        fetchAllTasks();
-    }, []); // Sayfa yüklendiğinde bir kez çalışır
-
-    const handleEdit = (id: number) => {
-        console.log(`Edit task with id: ${id}`);
+    const handleEdit = (task: Task) => {
+        setEditingTask(task);
     };
 
     const handleDelete = (id: number) => {
@@ -114,7 +112,7 @@ const Management: React.FC = () => {
             userId: user.id,
             title: newTaskTitle,
             description: newTaskDescription,
-            status: 1  // Varsayılan olarak "1" (New) statüsü
+            status: 1
         };
 
         try {
@@ -122,7 +120,7 @@ const Management: React.FC = () => {
 
             if (response.status === 201 || response.status === 200) {
                 console.log('Task added successfully:', response.data);
-                await fetchAllTasks();  // Veritabanından en güncel verileri tekrar çekelim
+                await fetchAllTasks();
                 setNewTaskTitle('');
                 setNewTaskDescription('');
             } else {
@@ -132,6 +130,43 @@ const Management: React.FC = () => {
             console.error('Error adding task:', error);
         }
     };
+
+    const handleSaveChanges = async () => {
+        if (!editingTask) return;
+
+        const user = authService.getUserInfo();
+
+        if (!user || !user.id) {
+            console.error('User ID is undefined or user information is missing:', user);
+            return;
+        }
+
+        // Status değerini metinsel karşılıktan sayısal karşılığa dönüştürüyoruz
+        const statusMapping: { [key in Task['status']]: number } = {
+            New: 1,
+            InProgress: 2,
+            Completed: 3
+        };
+
+        const updatedTask: UpdateDutyRequest = {
+            id: editingTask.id,
+            title: editingTask.title,
+            description: editingTask.description,
+            status: statusMapping[editingTask.status],  // Burada dönüştürme yapıyoruz
+        };
+
+        try {
+            const response = await dutyService.updateTask({ ...updatedTask, userId: user.id });
+            await fetchAllTasks();
+            setEditingTask(null);
+        } catch (error) {
+            console.error('Error updating task:', error);
+        }
+    };
+
+
+
+
 
     const handleLogout = () => {
         authService.logout();
@@ -147,6 +182,65 @@ const Management: React.FC = () => {
                 return new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime();
             }
         });
+
+    const renderEditModal = () => {
+        if (!editingTask) return null;
+
+        return (
+            <Modal show={editingTask !== null} onHide={() => setEditingTask(null)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Task</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="editTaskTitle">
+                            <Form.Label>Title</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={editingTask.title}
+                                onChange={(e) =>
+                                    setEditingTask({ ...editingTask, title: e.target.value })
+                                }
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="editTaskDescription">
+                            <Form.Label>Description</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                value={editingTask.description}
+                                onChange={(e) =>
+                                    setEditingTask({ ...editingTask, description: e.target.value })
+                                }
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="editTaskStatus">
+                            <Form.Label>Status</Form.Label>
+                            <Form.Control
+                                as="select"
+                                value={editingTask.status}
+                                onChange={(e) =>
+                                    setEditingTask({ ...editingTask, status: e.target.value as Task['status'] })
+                                }
+                            >
+                                <option value="New">New</option>
+                                <option value="InProgress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                            </Form.Control>
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setEditingTask(null)}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleSaveChanges}>
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    };
 
     return (
         <Container className="mt-4">
@@ -235,13 +329,20 @@ const Management: React.FC = () => {
                             <td>{formatDate(task.createdDate)}</td>
                             <td>{task.status}</td>
                             <td>
-                                <Button variant="warning" className="mr-2" onClick={() => handleEdit(task.id)}>Edit</Button>
-                                <Button variant="danger" onClick={() => handleDelete(task.id)}>Delete</Button>
+                                <Button variant="warning" style={{ marginRight: '10px' }} onClick={() => handleEdit(task)}>
+                                    Edit
+                                </Button>
+                                <Button variant="danger" onClick={() => handleDelete(task.id)}>
+                                    Delete
+                                </Button>
                             </td>
+
                         </tr>
                     ))}
                 </tbody>
             </Table>
+
+            {renderEditModal()}
         </Container>
     );
 };

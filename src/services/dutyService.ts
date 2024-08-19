@@ -10,7 +10,6 @@ import UpdateDutyRequest from "../models/requests/duty/updateDutyRequest";
 import { AxiosResponse } from "axios";
 import axiosInstance from "../core/interceptors/axiosInterceptor";
 
-
 class DutyService extends BaseService<
     Paginate<GetListDutyResponse>,
     GetListDutyResponse,
@@ -31,9 +30,13 @@ class DutyService extends BaseService<
     }
 
     addTask(task: AddDutyRequest): Promise<AxiosResponse<AddedDutyResponse>> {
-        return axiosInstance.post<AddedDutyResponse>(`${this.apiUrl}/Add`, task);  // /Add endpoint'i eklendi
+        return axiosInstance.post<AddedDutyResponse>(`${this.apiUrl}/Add`, task);
+    }
+
+    // Yeni updateTask metodu
+    updateTask(task: UpdateDutyRequest): Promise<AxiosResponse<UpdatedDutyResponse>> {
+        return axiosInstance.post<UpdatedDutyResponse>(`${this.apiUrl}/Update`, task);
     }
 }
 
 export default new DutyService();
-
