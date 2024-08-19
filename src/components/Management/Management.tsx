@@ -9,7 +9,7 @@ import UpdateDutyRequest from '../../models/requests/duty/updateDutyRequest';
 
 interface Task {
     id: number;
-    userId?: number;  // İsteğe bağlı hale getirildi
+    userId?: number;
     title: string;
     description: string;
     createdDate: string;
@@ -42,6 +42,16 @@ const Management: React.FC = () => {
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const user = authService.getUserInfo();
+        if (!user || !user.id) {
+            navigate('/');
+            return;
+        }
+
+        fetchAllTasks();
+    }, []);
+
     const fetchAllTasks = async () => {
         const user = authService.getUserInfo();
 
@@ -66,7 +76,7 @@ const Management: React.FC = () => {
                         }
                         return {
                             id: item.id,
-                            userId: item.userId, // userId alanı ekleniyor
+                            userId: item.userId,
                             title: item.title,
                             description: item.description,
                             createdDate: item.createdDate || new Date().toISOString(),
@@ -87,10 +97,6 @@ const Management: React.FC = () => {
             console.error('Error fetching tasks:', error);
         }
     };
-
-    useEffect(() => {
-        fetchAllTasks();
-    }, []);
 
     const handleEdit = (task: Task) => {
         setEditingTask(task);
@@ -141,7 +147,6 @@ const Management: React.FC = () => {
             return;
         }
 
-        // Status değerini metinsel karşılıktan sayısal karşılığa dönüştürüyoruz
         const statusMapping: { [key in Task['status']]: number } = {
             New: 1,
             InProgress: 2,
@@ -152,7 +157,7 @@ const Management: React.FC = () => {
             id: editingTask.id,
             title: editingTask.title,
             description: editingTask.description,
-            status: statusMapping[editingTask.status],  // Burada dönüştürme yapıyoruz
+            status: statusMapping[editingTask.status],
         };
 
         try {
@@ -163,10 +168,6 @@ const Management: React.FC = () => {
             console.error('Error updating task:', error);
         }
     };
-
-
-
-
 
     const handleLogout = () => {
         authService.logout();
@@ -327,7 +328,20 @@ const Management: React.FC = () => {
                             <td>{task.title}</td>
                             <td>{task.description}</td>
                             <td>{formatDate(task.createdDate)}</td>
-                            <td>{task.status}</td>
+                            <td
+                                style={{
+                                    color:
+                                        task.status === 'Completed'
+                                            ? 'green'
+                                            : task.status === 'InProgress'
+                                                ? 'orange'
+                                                : task.status === 'New'
+                                                    ? 'red'
+                                                    : 'inherit'
+                                }}
+                            >
+                                {task.status}
+                            </td>
                             <td>
                                 <Button variant="warning" style={{ marginRight: '10px' }} onClick={() => handleEdit(task)}>
                                     Edit
@@ -336,7 +350,6 @@ const Management: React.FC = () => {
                                     Delete
                                 </Button>
                             </td>
-
                         </tr>
                     ))}
                 </tbody>
