@@ -1,5 +1,3 @@
-
-
 export default interface UpdatedDutyResponse{
     id:number;
     title :string ;

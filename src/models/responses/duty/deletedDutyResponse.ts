@@ -1,4 +1,3 @@
-
 export default interface DeletedDutyResponse{
     id:number;
     userName : string;

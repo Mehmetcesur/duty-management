@@ -1,6 +1,6 @@
 export default interface getListDutyResponse {
     id: number;
-    userId: number;  // Bu alanın tanımlı olduğundan emin olun
+    userId: number;
     title: string;
     description: string;
     createdDate: string;
