@@ -39,13 +39,15 @@ const Management: React.FC = () => {
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [newTaskDescription, setNewTaskDescription] = useState('');
     const [editingTask, setEditingTask] = useState<Task | null>(null);
+    const [deletingTask, setDeletingTask] = useState<Task | null>(null); // Silinecek görev için state
+    const [showDeleteModal, setShowDeleteModal] = useState(false); // Silme onay modalı için state
 
     const navigate = useNavigate();
 
     useEffect(() => {
         const user = authService.getUserInfo();
         if (!user || !user.id) {
-            navigate('/');
+            navigate('/'); // Eğer kullanıcı giriş yapmamışsa anasayfaya yönlendir
             return;
         }
 
@@ -76,7 +78,7 @@ const Management: React.FC = () => {
                         }
                         return {
                             id: item.id,
-                            userId: item.userId,
+                            userId: item.userId, // userId alanı ekleniyor
                             title: item.title,
                             description: item.description,
                             createdDate: item.createdDate || new Date().toISOString(),
@@ -102,9 +104,26 @@ const Management: React.FC = () => {
         setEditingTask(task);
     };
 
-    const handleDelete = (id: number) => {
-        setTasks(tasks.filter(task => task.id !== id));
+    const handleDeleteClick = (task: Task) => {
+        setDeletingTask(task); // Silinmesi istenen görevi ayarla
+        setShowDeleteModal(true); // Modalı aç
     };
+
+    const handleDeleteConfirm = async () => {
+        if (!deletingTask) return;
+
+        try {
+            // Silme işlemini gerçekleştir
+            await dutyService.deleteTask(deletingTask.id);
+            setTasks(tasks.filter(task => task.id !== deletingTask.id)); // Görev listesini güncelle
+        } catch (error) {
+            console.error('Error deleting task:', error);
+        }
+
+        setShowDeleteModal(false); // Modalı kapat
+        setDeletingTask(null); // Silinecek görevi temizle
+    };
+
 
     const handleAddTask = async () => {
         const user = authService.getUserInfo();
@@ -157,7 +176,7 @@ const Management: React.FC = () => {
             id: editingTask.id,
             title: editingTask.title,
             description: editingTask.description,
-            status: statusMapping[editingTask.status],
+            status: statusMapping[editingTask.status], // Status değerini sayısal değere dönüştürme
         };
 
         try {
@@ -242,6 +261,25 @@ const Management: React.FC = () => {
             </Modal>
         );
     };
+
+    const renderDeleteModal = () => (
+        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+            <Modal.Header closeButton>
+                <Modal.Title>Confirm Delete</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                Are you sure you want to delete this task?
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                    No
+                </Button>
+                <Button variant="danger" onClick={handleDeleteConfirm}>
+                    Yes
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    );
 
     return (
         <Container className="mt-4">
@@ -346,7 +384,7 @@ const Management: React.FC = () => {
                                 <Button variant="warning" style={{ marginRight: '10px' }} onClick={() => handleEdit(task)}>
                                     Edit
                                 </Button>
-                                <Button variant="danger" onClick={() => handleDelete(task.id)}>
+                                <Button variant="danger" onClick={() => handleDeleteClick(task)}>
                                     Delete
                                 </Button>
                             </td>
@@ -356,6 +394,7 @@ const Management: React.FC = () => {
             </Table>
 
             {renderEditModal()}
+            {renderDeleteModal()}
         </Container>
     );
 };

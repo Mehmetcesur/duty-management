@@ -33,10 +33,15 @@ class DutyService extends BaseService<
         return axiosInstance.post<AddedDutyResponse>(`${this.apiUrl}/Add`, task);
     }
 
-    // Yeni updateTask metodu
     updateTask(task: UpdateDutyRequest): Promise<AxiosResponse<UpdatedDutyResponse>> {
         return axiosInstance.post<UpdatedDutyResponse>(`${this.apiUrl}/Update`, task);
     }
+
+    deleteTask(id: number): Promise<AxiosResponse<DeletedDutyResponse>> {
+        return axiosInstance.delete<DeletedDutyResponse>(`${this.apiUrl}/Delete?id=${id}`);
+    }
+    
 }
 
 export default new DutyService();
+
