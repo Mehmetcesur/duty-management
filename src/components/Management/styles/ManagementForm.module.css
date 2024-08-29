@@ -18,7 +18,7 @@
   .filterContainer {
     display: flex;
     justify-content: center;
-    gap: 1rem; /* İki filtreleme seçeneği arasındaki boşluk */
+    gap: 1rem; 
   }
   
   .filterGroup label {

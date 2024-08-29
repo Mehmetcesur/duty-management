@@ -21,7 +21,7 @@ const RegisterForm: React.FC = () => {
 
       if (response.status === 200 || response.status === 201) {
         console.log('User registered successfully:', response.data);
-        navigate('/'); // Kayıt başarılıysa giriş sayfasına yönlendirin
+        navigate('/'); 
       } else {
         console.error('Failed to register user:', response);
       }
