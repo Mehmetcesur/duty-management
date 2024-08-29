@@ -17,20 +17,18 @@ interface TokenDetails {
 
 
 class AuthService {
-    // Diğer metodlar...
-
     async login(request: LoginRequest): Promise<boolean> {
         try {
             const response = await axiosInstance.post<LoginResponse>("Auth/login", request);
-            console.log(response);  // Yanıtı konsolda inceleyin
+            console.log(response);
             if (response.data && response.data.token) {
-                tokenService.setToken(response.data);  // Token'ı sakla
-                return true;  // Giriş başarılı
+                tokenService.setToken(response.data);
+                return true;
             }
-            return false;  // Giriş başarısız
+            return false;
         } catch (error) {
             console.error('Login failed', error);
-            return false;  // Hata durumunda da başarısız olarak dön
+            return false; 
         }
     }
 
@@ -62,7 +60,7 @@ class AuthService {
 
             const user: any = {
                 id: userId,
-                userName: userName,  // Burada 'usernName' yerine 'userName' olarak düzelttim
+                userName: userName,
                 email: email,
             };
 
@@ -74,7 +72,7 @@ class AuthService {
     }
 
     logout(): void {
-        tokenService.removeToken();  // Token'ı temizle
+        tokenService.removeToken();
     }
 }
 

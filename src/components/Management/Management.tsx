@@ -39,15 +39,15 @@ const Management: React.FC = () => {
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [newTaskDescription, setNewTaskDescription] = useState('');
     const [editingTask, setEditingTask] = useState<Task | null>(null);
-    const [deletingTask, setDeletingTask] = useState<Task | null>(null); // Silinecek görev için state
-    const [showDeleteModal, setShowDeleteModal] = useState(false); // Silme onay modalı için state
+    const [deletingTask, setDeletingTask] = useState<Task | null>(null); 
+    const [showDeleteModal, setShowDeleteModal] = useState(false); 
 
     const navigate = useNavigate();
 
     useEffect(() => {
         const user = authService.getUserInfo();
         if (!user || !user.id) {
-            navigate('/'); // Eğer kullanıcı giriş yapmamışsa anasayfaya yönlendir
+            navigate('/');
             return;
         }
 
@@ -78,7 +78,7 @@ const Management: React.FC = () => {
                         }
                         return {
                             id: item.id,
-                            userId: item.userId, // userId alanı ekleniyor
+                            userId: item.userId,
                             title: item.title,
                             description: item.description,
                             createdDate: item.createdDate || new Date().toISOString(),
@@ -105,23 +105,22 @@ const Management: React.FC = () => {
     };
 
     const handleDeleteClick = (task: Task) => {
-        setDeletingTask(task); // Silinmesi istenen görevi ayarla
-        setShowDeleteModal(true); // Modalı aç
+        setDeletingTask(task);
+        setShowDeleteModal(true);
     };
 
     const handleDeleteConfirm = async () => {
         if (!deletingTask) return;
 
         try {
-            // Silme işlemini gerçekleştir
             await dutyService.deleteTask(deletingTask.id);
-            setTasks(tasks.filter(task => task.id !== deletingTask.id)); // Görev listesini güncelle
+            setTasks(tasks.filter(task => task.id !== deletingTask.id));
         } catch (error) {
             console.error('Error deleting task:', error);
         }
 
-        setShowDeleteModal(false); // Modalı kapat
-        setDeletingTask(null); // Silinecek görevi temizle
+        setShowDeleteModal(false);
+        setDeletingTask(null);
     };
 
 
@@ -176,7 +175,7 @@ const Management: React.FC = () => {
             id: editingTask.id,
             title: editingTask.title,
             description: editingTask.description,
-            status: statusMapping[editingTask.status], // Status değerini sayısal değere dönüştürme
+            status: statusMapping[editingTask.status],
         };
 
         try {
